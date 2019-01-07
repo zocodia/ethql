@@ -14,8 +14,8 @@ const options: Options | commander.Command = commander
   .version('0.0.1')
   .option(
     '-j, --jsonrpc <endpoint>',
-    'specify the JSON-RPC endpoint [https://mainnet.infura.io/${INFURA_ID}]; supported transports: http, https, wss, ipc',
-    `https://mainnet.infura.io/${process.env.INFURA_ID || ''}`,
+    'specify the JSON-RPC endpoint [https://mainnet.infura.io/v3/${INFURA_ID}]; supported transports: http, https, wss, ipc',
+    `https://mainnet.infura.io/v3/${process.env.INFURA_ID || ''}`,
   )
   .option(
     '-m, --query-max-size <limit>',
