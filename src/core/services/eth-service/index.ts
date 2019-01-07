@@ -27,6 +27,7 @@ export interface EthService {
   fetchTransactionLogs(tx: EthqlTransaction): Promise<EthqlLog[]>;
   fetchCreatedContract(tx: EthqlTransaction): Promise<EthqlAccount>;
   fetchTransactionStatus(tx: EthqlTransaction): Promise<TransactionStatus>;
+  fetchBlockNumber(): Promise<number>;
 }
 
 /**

@@ -1,19 +1,22 @@
 import { GraphQLResolveInfo } from 'graphql';
 import * as _ from 'lodash';
+import { stringify } from 'querystring';
 import { EthqlContext } from '../../context';
-import { EthqlAccount, EthqlBlock, EthqlTransaction } from '../model';
+import { EthqlAccount, EthqlBlock, EthqlTransaction, PagedEthqlBlock } from '../model';
 
 // Select a single block.
 type BlockArgs = { number?: number; hash?: string; tag?: string };
 
 // Select a single block with an offset.
-type BlockOffsetArgs = { number?: number; hash?: string; offset?: number; tag?: string };
+type BlockOffsetArgs = BlockArgs & { offset?: number };
 
 // Select multiple blocks.
 type BlocksArgs = { numbers?: number[]; hashes?: string[] };
 
 // Select multiple blocks.
 type BlocksRangeArgs = { numberRange?: [number, number]; hashRange?: [string, string] };
+
+type PagedBlockArgs = BlockArgs & { cursor?: string; after?: number; before?: number };
 
 async function block(obj, args: BlockArgs, { services }: EthqlContext, info: GraphQLResolveInfo): Promise<EthqlBlock> {
   let { number: blockNumber, hash, tag } = args;
@@ -127,6 +130,70 @@ async function blocksRange(
   return Promise.all(blocksRange.map(blockNumber => services.ethService.fetchBlock(blockNumber, info)));
 }
 
+async function pageBlocks(
+  obj: never,
+  args: PagedBlockArgs,
+  { services, config }: EthqlContext,
+  info: GraphQLResolveInfo,
+): Promise<PagedEthqlBlock> {
+  console.log(args);
+  let { number, hash, tag, cursor, before, after } = args;
+  const params = _.reject([cursor, number, hash, tag ? tag.toLowerCase() : null], _.isNil);
+  tag = tag ? tag.toLowerCase() : null;
+
+  if (!params.length) {
+    throw new Error('Expected either cursor, number, hash or tag argument.');
+  }
+
+  if (params.length > 1) {
+    throw new Error('Only one of cursor, number, hash or tag argument should be provided.');
+  }
+
+  if (before && after) {
+    throw new Error(`You cannot specify paging in 2 directions: specify either before or after`);
+  }
+
+  if (!(before || after)) {
+    throw new Error(`You must specify before or after in a paged query`);
+  }
+
+  if (cursor) {
+    const [resultType, blockNum] = services.pagingService.deserializeCursor(cursor);
+    console.log(resultType, blockNum);
+    params[0] = blockNum;
+  }
+
+  // Fetch the upper bound
+  const boundary: number = await services.ethService.fetchBlockNumber();
+  console.log(boundary);
+
+  // Get the first block in the series
+  // In case we get a tag or a hash, we need to fetch the block to get the block number
+  let firstBlock: EthqlBlock = await services.ethService.fetchBlock(params[0], info);
+  const startingBlock = firstBlock.number;
+
+  // Get a page of blocknumbers
+  let [start, end] = before ? [startingBlock - before, startingBlock] : [startingBlock, startingBlock + after];
+  let page: number[] = _.range(start, end);
+
+  // Query for all of the blocks and calculate the paging object
+  return Promise.all(_.map(page, blkNum => services.ethService.fetchBlock(blkNum, info)))
+    .then((results: EthqlBlock[]) => {
+      return _.reject(results, _.isNil);
+    })
+    .then(filteredResults => {
+      return new PagedEthqlBlock(
+        filteredResults,
+        services.pagingService.createPageObject(
+          before,
+          after,
+          filteredResults,
+          () => firstBlock.number + after <= boundary,
+        ),
+      );
+    });
+}
+
 function account(obj, { address }): EthqlAccount {
   return new EthqlAccount(address);
 }
@@ -143,5 +210,6 @@ export default {
     blocksRange,
     account,
     transaction,
+    pageBlocks,
   },
 };

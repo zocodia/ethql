@@ -70,4 +70,8 @@ export class Web3EthService implements EthService {
     }
     return receipt.status === undefined ? null : receipt.status ? 'SUCCESS' : 'FAILED';
   }
+
+  public async fetchBlockNumber(): Promise<number> {
+    return this.web3.eth.getBlockNumber();
+  }
 }

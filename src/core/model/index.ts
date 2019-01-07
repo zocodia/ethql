@@ -117,6 +117,22 @@ export class EthqlBlock implements EthqlBlock {
   }
 }
 
+export interface PageInfo {
+  cursor: string;
+}
+
+export class PageInfoForward implements PageInfo {
+  constructor(public readonly cursor: string, public readonly hasNextPage: boolean) {}
+}
+
+export class PageInfoBackward implements PageInfo {
+  constructor(public readonly cursor: string, public readonly hasPreviousPage: boolean) {}
+}
+
+export class PagedEthqlBlock {
+  constructor(public readonly blocks: EthqlBlock[], public readonly pageInfo: PageInfo) {}
+}
+
 export enum StorageObjectType {
   MAP_ADDRESS_KEY,
   MAP_NUMBER_KEY,

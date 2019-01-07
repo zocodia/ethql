@@ -15,11 +15,32 @@ extend type Query {
   "Selects a range of blocks."
   blocksRange(numberRange: [BlockNumber], hashRange: [Bytes32]): [Block]
 
+  "Select page of Blocks at a specified point"
+  pageBlocks(number: BlockNumber, hash: Bytes32, tag: BlockTag, cursor: String, before: Int, after: Int): PagedBlock
+
   "Selects a transaction by hash."
   transaction(hash: Bytes32): Transaction
 
   "Returns the health of the server."
   health: String!
+}
+"""
+Basic Paging
+"""
+type PageInfo {
+  "This will be a reference to the first or last block in the list depending on direction"
+  cursor: String!
+
+  "Forward paging indicator there are more pages"
+  hasNextPage: Boolean
+
+  "Backward paging indicator there are more pages"
+  hasPreviousPage: Boolean
+}
+
+type PagedBlock {
+  pageInfo: PageInfo!
+  blocks: [Block!]
 }
 
 """

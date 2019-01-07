@@ -3,6 +3,7 @@ import resolvers from './resolvers';
 import coreSchema from './schema';
 import { SimpleDecodingEngine } from './services/decoder/impl/simple';
 import { Web3EthService } from './services/eth-service/impl/web3-eth-service';
+import { PagingServiceImpl } from './services/paging/impl/paging-service';
 import { initWeb3 } from './services/web3';
 
 export const plugin: EthqlPluginFactory = prelude => {
@@ -20,6 +21,11 @@ export const plugin: EthqlPluginFactory = prelude => {
       ethService: {
         implementation: {
           factory: () => context => new Web3EthService(context.services.web3),
+        },
+      },
+      pagingService: {
+        implementation: {
+          singleton: () => new PagingServiceImpl(),
         },
       },
       decoder: {
