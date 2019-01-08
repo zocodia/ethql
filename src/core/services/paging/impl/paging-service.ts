@@ -11,10 +11,19 @@ export class PagingServiceImpl implements PagingService {
   public createPageObject(before: number, after: number, resultSet: any[], hasMore: () => boolean): PageInfo {
     const direction: PageDirection = before ? PageDirection.BACKWARD : PageDirection.FORWARD;
     const blockNumbers: number[] = _.map(resultSet, it => it.number);
+    const [first, last]: number[] = [_.min(blockNumbers), _.max(blockNumbers)];
 
     return direction === PageDirection.BACKWARD
-      ? new PageInfoBackward(`${this.serializeCursor(resultSet, _.min(blockNumbers).toString())}`, true)
-      : new PageInfoForward(`${this.serializeCursor(resultSet, (_.max(blockNumbers) + 1).toString())}`, hasMore());
+      ? new PageInfoBackward(
+          `${this.serializeCursor(resultSet, first.toString())}`,
+          `${this.serializeCursor(resultSet, last.toString())}`,
+          true,
+        )
+      : new PageInfoForward(
+          `${this.serializeCursor(resultSet, first.toString())}`,
+          `${this.serializeCursor(resultSet, (last + 1).toString())}`,
+          hasMore(),
+        );
   }
 
   public serializeCursor(resultSet: any[], cursorRef: string) {

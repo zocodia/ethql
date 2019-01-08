@@ -118,15 +118,24 @@ export class EthqlBlock implements EthqlBlock {
 }
 
 export interface PageInfo {
-  cursor: string;
+  firstCursor: string;
+  lastCursor: string;
 }
 
 export class PageInfoForward implements PageInfo {
-  constructor(public readonly cursor: string, public readonly hasNextPage: boolean) {}
+  constructor(
+    public readonly firstCursor: string,
+    public readonly lastCursor: string,
+    public readonly hasNextPage: boolean,
+  ) {}
 }
 
 export class PageInfoBackward implements PageInfo {
-  constructor(public readonly cursor: string, public readonly hasPreviousPage: boolean) {}
+  constructor(
+    public readonly firstCursor: string,
+    public readonly lastCursor: string,
+    public readonly hasPreviousPage: boolean,
+  ) {}
 }
 
 export class PagedEthqlBlock {

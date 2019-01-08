@@ -28,8 +28,9 @@ extend type Query {
 Basic Paging
 """
 type PageInfo {
-  "This will be a reference to the first or last block in the list depending on direction"
-  cursor: String!
+  "This will be a reference to the first and last block in the list respectively"
+  firstCursor: String!
+  lastCursor: String!
 
   "Forward paging indicator there are more pages"
   hasNextPage: Boolean

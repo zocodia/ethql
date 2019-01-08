@@ -139,7 +139,6 @@ async function pageBlocks(
   console.log(args);
   let { number, hash, tag, cursor, before, after } = args;
   const params = _.reject([cursor, number, hash, tag ? tag.toLowerCase() : null], _.isNil);
-  tag = tag ? tag.toLowerCase() : null;
 
   if (!params.length) {
     throw new Error('Expected either cursor, number, hash or tag argument.');
