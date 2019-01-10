@@ -27,7 +27,8 @@ test('paging backward', () => {
   expect(result).toHaveProperty('hasPreviousPage');
   expect(result).not.toHaveProperty('hasNextPage');
   expect((result as PageInfoBackward).hasPreviousPage).toBe(true);
-  expect(result.cursor).toBeTruthy();
+  expect(result.firstCursor).toBeTruthy();
+  expect(result.lastCursor).toBeTruthy();
 });
 
 test('paging foward', () => {
@@ -38,5 +39,6 @@ test('paging foward', () => {
   expect(result).toHaveProperty('hasNextPage');
   expect(result).not.toHaveProperty('hasPreviousPage');
   expect((result as PageInfoForward).hasNextPage).toBe(true);
-  expect(result.cursor).toBeTruthy();
+  expect(result.firstCursor).toBeTruthy();
+  expect(result.lastCursor).toBeTruthy();
 });
